@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# MONOLITH CONVERSION NOTE: replaces ~12 separate scrape jobs (one per
+# former microservice, each on its own port) with one — there's one
+# process now, one /actuator/prometheus endpoint covering every module's
+# metrics together.
+scrape_configs:
+  - job_name: 'insurance-monolith'
+    metrics_path: '/api/v1/actuator/prometheus'
+    static_configs:
+      - targets: ['app:8080']

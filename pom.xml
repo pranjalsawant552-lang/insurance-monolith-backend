@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ========================================================= -->
+    <!-- SPRING BOOT PARENT                                        -->
+    <!-- ========================================================= -->
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.5</version>
+        <relativePath/>
+    </parent>
+
+
+    <!-- ========================================================= -->
+    <!-- PROJECT INFORMATION                                       -->
+    <!-- ========================================================= -->
+
+    <groupId>com.insurance</groupId>
+    <artifactId>insurance-monolith</artifactId>
+    <version>1.0.0</version>
+
+    <packaging>jar</packaging>
+
+    <name>insurance-monolith</name>
+
+    <description>
+        Insurance Management Platform - merged monolith.
+        Originally 12 Spring Boot microservices including agent,
+        analytics, audit, auth, claims, customer, document,
+        notification, payment, policy, product and risk-fraud.
+    </description>
+
+
+    <!-- ========================================================= -->
+    <!-- PROPERTIES                                                -->
+    <!-- ========================================================= -->
+
+    <properties>
+
+        <!-- Java -->
+        <java.version>21</java.version>
+
+        <!-- Encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Lombok -->
+        <lombok.version>1.18.42</lombok.version>
+
+        <!-- JWT -->
+        <jjwt.version>0.11.5</jjwt.version>
+
+        <!-- MapStruct -->
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+
+        <!-- SpringDoc -->
+        <springdoc.version>2.6.0</springdoc.version>
+
+        <!-- AWS SDK -->
+        <aws.sdk.version>2.25.60</aws.sdk.version>
+
+    </properties>
+
+
+    <!-- ========================================================= -->
+    <!-- DEPENDENCIES                                              -->
+    <!-- ========================================================= -->
+
+    <dependencies>
+
+
+        <!-- ===================================================== -->
+        <!-- WEB / REST API                                        -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- WEBSOCKET / STOMP                                     -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- SPRING SECURITY                                       -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- SPRING DATA JPA / HIBERNATE                           -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- VALIDATION                                             -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- REDIS                                                   -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- REDIS CACHE                                             -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- REDIS HTTP SESSION                                      -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- EMAIL                                                   -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- ACTUATOR                                                -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- JACKSON JAVA TIME                                       -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- JACKSON HIBERNATE 6                                    -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate6</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- JWT API                                                 -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- JWT IMPLEMENTATION                                      -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- JWT JACKSON                                             -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- TOTP / MFA                                              -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>dev.samstevens.totp</groupId>
+            <artifactId>totp-spring-boot-starter</artifactId>
+            <version>1.7.1</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- PASSWORD POLICY                                         -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.passay</groupId>
+            <artifactId>passay</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- RATE LIMITING                                           -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j_jdk17-core</artifactId>
+            <version>8.16.1</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- TWILIO SMS                                              -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>10.1.0</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- AWS S3                                                  -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- COMMONS CODEC                                           -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+
+
+        <!-- Apache POI - Excel -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
+        <!-- Apache POI - Excel OOXML (.xlsx) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- PDFBOX                                                  -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.30</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- TESSERACT OCR                                           -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.11.0</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- POSTGRESQL                                              -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- FLYWAY                                                  -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- MAPSTRUCT                                               -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- LOMBOK                                                  -->
+        <!-- Explicit version for Java 21 / Javac compatibility    -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- SPRINGDOC / OPENAPI                                     -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- PROMETHEUS                                              -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- DEVTOOLS                                                -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- TESTING                                                 -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+    </dependencies>
+
+
+    <!-- ========================================================= -->
+    <!-- BUILD                                                     -->
+    <!-- ========================================================= -->
+
+    <build>
+
+        <finalName>insurance-monolith</finalName>
+
+        <plugins>
+
+
+            <!-- ================================================= -->
+            <!-- MAVEN COMPILER                                    -->
+            <!-- ================================================= -->
+
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+
+                <configuration>
+
+                    <!-- Java 21 -->
+                    <release>${java.version}</release>
+
+                    <!-- Required for Spring parameter discovery -->
+                    <parameters>true</parameters>
+
+                    <!-- Annotation Processors -->
+                    <annotationProcessorPaths>
+
+                        <!-- Lombok -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+
+                        <!-- MapStruct -->
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+
+                    </annotationProcessorPaths>
+
+                </configuration>
+
+            </plugin>
+
+
+            <!-- ================================================= -->
+            <!-- SPRING BOOT MAVEN PLUGIN                          -->
+            <!-- ================================================= -->
+
+            <plugin>
+
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+
+                <configuration>
+
+                    <mainClass>
+                        com.insurance.monolith.InsuranceMonolithApplication
+                    </mainClass>
+
+                    <excludes>
+
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+
+                    </excludes>
+
+                </configuration>
+
+            </plugin>
+
+
+        </plugins>
+
+    </build>
+
+
+</project>

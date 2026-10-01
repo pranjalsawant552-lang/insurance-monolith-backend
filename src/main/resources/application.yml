@@ -1,0 +1,255 @@
+# ============================================================
+# Insurance Monolith — merged configuration
+#
+# MONOLITH CONVERSION NOTE: this replaces 12 separate application.yml files
+# (one per former microservice), each on its own port with its own
+# database. Every setting below is traceable back to exactly one of those
+# 12 files; see MONOLITH-CONVERSION-NOTES.md for the full mapping and for
+# the handful of real conflicts (cache TTLs, connection pool sizes) and how
+# each was resolved. Nothing here is a new default invented for this merge
+# except where explicitly commented.
+# ============================================================
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: insurance-monolith
+
+  # Single shared database, single schema — per the "fully merge into one
+  # schema" decision. All 12 former per-service databases
+  # (insurance_auth_db, insurance_policy_db, ...) collapse into one.
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:insurance_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      # Highest pool size any single service requested (auth/policy/claims/
+      # payment/notification/audit all asked for 20). A monolith serving all
+      # traffic through one pool needs at least as much headroom as the
+      # busiest original service needed alone, so it's a floor, not a sum —
+      # see the conversion notes for the reasoning and for load-testing
+      # guidance before trusting this number in production.
+      maximum-pool-size: ${DB_POOL_MAX:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      # validate everywhere, including what was analytics-service's
+      # ddl-auto: create-drop — analytics has zero @Entity classes (it only
+      # reads events/other modules' data), so validate is a safe, strictly
+      # more correct replacement, not a functional change.
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: public
+        jdbc:
+          batch_size: 50
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+
+  # Per-cache-name TTLs (rolePermissions: 15 min, products: 1 hour) are set
+  # in code — see com.insurance.monolith.config.CacheConfig — because this
+  # single global property can't express two different TTLs the way two
+  # separate service configs could.
+  cache:
+    type: redis
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:noreply@insurance.com}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  session:
+    store-type: redis
+    redis:
+      namespace: auth:session
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
+# ------------------------------------------------------------
+# JWT (formerly auth-service)
+# ------------------------------------------------------------
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-change-in-production-min-32-chars}
+  access-token-expiry-ms: 900000
+  refresh-token-expiry-ms: 604800000
+  reset-token-expiry-ms: 900000
+  email-verify-token-expiry-ms: 86400000
+
+otp:
+  length: 6
+  expiry-minutes: 10
+  max-attempts: 3
+  resend-cooldown-seconds: 60
+
+lockout:
+  max-failed-attempts: 5
+  lockout-duration-minutes: 30
+
+bootstrap:
+  admin-secret: ${BOOTSTRAP_ADMIN_SECRET:}
+
+rate-limit:
+  login:
+    capacity: 10
+    refill-tokens: 10
+    refill-duration-seconds: 3600
+  otp:
+    capacity: 5
+    refill-tokens: 5
+    refill-duration-seconds: 3600
+
+# ------------------------------------------------------------
+# Field-level encryption (formerly agent-service, customer-service)
+# ------------------------------------------------------------
+encryption:
+  field-key: ${FIELD_ENCRYPTION_KEY:}
+
+# ------------------------------------------------------------
+# Twilio SMS (formerly auth-service, notification-service)
+# ------------------------------------------------------------
+twilio:
+  account-sid: ${TWILIO_ACCOUNT_SID:}
+  auth-token: ${TWILIO_AUTH_TOKEN:}
+  from-number: ${TWILIO_FROM_NUMBER:}
+
+# ------------------------------------------------------------
+# App / branding (formerly notification-service, auth-service)
+# ------------------------------------------------------------
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  company-name: ${COMPANY_NAME:Insurance Platform}
+  support-email: ${SUPPORT_EMAIL:support@insurance.com}
+
+# ------------------------------------------------------------
+# Policy numbering (formerly policy-service)
+# ------------------------------------------------------------
+policy:
+  number-prefix:
+    LIFE: LIF
+    HEALTH: HLT
+    MOTOR: MOT
+  # AUDIT FINDING (§8): gates the legacy self-issuance/underwriting flow
+  # (POST /policies, /issue, /underwriting-queue, /underwriting-decision),
+  # which contradicts the stated business model where the insurer issues
+  # the policy and this app only ingests the resulting document. Defaults
+  # to false — isolated, not deleted, pending an explicit decision. See
+  # PolicyController's class-level javadoc and MONOLITH-CONVERSION-NOTES.md.
+  legacy-issuance:
+    enabled: false
+  renewal-reminder:
+    # Staged reminder points, in days before the policy's next due date.
+    # Each fires exactly once per policy — see PolicyRenewalReminder /
+    # PolicyService.sendRenewalReminders() (audit report §4.7 fix).
+    milestone-days: 60,45,30,15,7,1
+
+# ------------------------------------------------------------
+# Payment gateway (formerly payment-service)
+# ------------------------------------------------------------
+payment:
+  gateway:
+    razorpay:
+      key-id: ${RAZORPAY_KEY_ID:}
+      key-secret: ${RAZORPAY_KEY_SECRET:}
+      webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+    currency: INR
+
+# ------------------------------------------------------------
+# Document storage + OCR (formerly document-service)
+# ------------------------------------------------------------
+storage:
+  s3:
+    endpoint:   ${S3_ENDPOINT:http://localhost:9000}
+    access-key: ${S3_ACCESS_KEY:minioadmin}
+    secret-key: ${S3_SECRET_KEY:minioadmin}
+    region:     ${S3_REGION:ap-south-1}
+    bucket:     ${S3_BUCKET:insurance-documents}
+
+tesseract:
+  data-path: ${TESSDATA_PREFIX:/usr/share/tessdata}
+  language: ${TESSERACT_LANGUAGE:eng}
+
+# ------------------------------------------------------------
+# Report storage (formerly analytics-service)
+# ------------------------------------------------------------
+report:
+  storage:
+    path: ${REPORT_STORAGE_PATH:/tmp/reports}
+
+# ------------------------------------------------------------
+# API docs — one Swagger UI for every module's endpoints now, at
+# /api/v1/swagger-ui.html, instead of 12 separate per-service UIs behind
+# 12 separate ports. This alone closes one of the gaps flagged in the
+# original README ("Swagger UIs aren't aggregated through the gateway").
+# ------------------------------------------------------------
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  info:
+    title: Insurance Platform API
+    version: v1
+    description: Merged monolith — every module's endpoints in one OpenAPI document.
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    com.insurance: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{traceId}] %logger{36} - %msg%n"
